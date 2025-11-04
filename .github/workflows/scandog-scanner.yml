@@ -25,11 +25,11 @@ jobs:
           uses: scandogio/scandog-import@v1.1
           with:
             endpoint_type: 'sync'
-            workflow_id: "85ccd5a927ab57f3a5e0be396ae33647"
+            workflow_id: "b33d40e10fb3e07337590c75eb8b0a9a"
             scanner: 'SonarQube'
             scan_type: 'SAST'
             ci_run_id: ${{ github.run_id }}
             project_key: DevSecOpsOrg_juice-shop
             scandog_token: ${{ secrets.SCANDOG_TOKEN }}
-            scandog_url: ${{ secrets.SCANDOG_URL }}
+            scandog_url: ${{ vars.SCANDOG_URL }}
   
