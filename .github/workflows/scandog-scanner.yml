@@ -7,29 +7,28 @@ on:
     branches: [ master ]
 
 jobs:
-  
-    scandog_sonarcloud_scan:
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v4
-          with:
-            fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-  
-        - name: SonarQube Scan
-          uses: SonarSource/sonarqube-scan-action@v6
-          env:
-            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-            
-        - name: ScanDog SonarQube Sync
-          uses: scandogio/scandog-import@v1.1
-          with:
-            endpoint_type: 'sync'
-            workflow_id: "b33d40e10fb3e07337590c75eb8b0a9a"
-            scanner: 'SonarQube'
-            scan_type: 'SAST'
-            ci_run_id: ${{ github.run_id }}
-            project_key: DevSecOpsOrg_juice-shop
-            scandog_token: ${{ secrets.SCANDOG_TOKEN }}
-            scandog_url: ${{ vars.SCANDOG_URL }}
-  
+  scandog_trivy_container:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: nginx:latest
+          format: json
+          scanners: vuln
+          output: trivy-results.json
+      - name: Import results to ScanDog
+        uses: scandogio/scandog-import@v1.1
+        with:
+          endpoint_type: "import"
+          ci_run_id: ${{ github.run_id }}
+          report_file: trivy-results.json
+          workflow_id: ecedbcdc19ac3a84ac47092dbac57a14
+          scan_type: Container Scanner
+          scanner: Trivy
+          scandog_token: ${{ secrets.SCANDOG_TOKEN }}
+          scandog_url: ${{ vars.SCANDOG_URL }}
